@@ -1,7 +1,7 @@
 {
- "name": "Mini File Belgo",
- "short_name": "Mini File",
- "description": "Coleta de campo e geração do mini file (instrução de trabalho de 1 página).",
+ "name": "Instrução de Trabalho",
+ "short_name": "Instrução de trabalho",
+ "description": "Coleta de campo e geração do modelo padrão de instrução de trabalho (instrução de trabalho de 1 página).",
  "lang": "pt-BR",
  "start_url": "./",
  "scope": "./",
