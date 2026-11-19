@@ -756,7 +756,7 @@ class PaginaSVG extends Pagina {
     this.f.push('<rect x="' + x + '" y="' + (H - y - lado) + '" width="' + lado + '" height="' + lado + '" fill="#fff"/><path d="' + p + '" fill="#000" shape-rendering="crispEdges"/>');
   }
   svg() {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" font-family="Arial,Helvetica,sans-serif" role="img" aria-label="Prévia do mini file">' +
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" font-family="Arial,Helvetica,sans-serif" role="img" aria-label="Prévia da instrução de trabalho">' +
       "<defs>" + this.defs.join("") + '</defs><rect width="' + W + '" height="' + H + '" fill="#fff"/>' + this.f.join("") + "</svg>";
   }
 }
@@ -1004,7 +1004,7 @@ function montar(pg, d) {
   const etapas = d.etapas || [], n = Math.max(1, etapas.length);
   const y3 = secao(pg, y - bh - 9, 3, "EXECUÇÃO", etapas.length + (etapas.length === 1 ? " etapa" : " etapas"));
   const b3 = b4y + b4h + 8, gap = n <= 6 ? 9 : 6, cw = (W - 2 * M - (n - 1) * gap) / n;
-  if (cw < CARTAO_MIN) aviso("Execução: " + n + " etapas deixam cada cartão com " + (cw / 28.35).toFixed(1).replace(".", ",") + " cm; junte etapas ou divida em dois mini files.");
+  if (cw < CARTAO_MIN) aviso("Execução: " + n + " etapas deixam cada cartão com " + (cw / 28.35).toFixed(1).replace(".", ",") + " cm; junte etapas ou divida em duas instruções de trabalho.");
   const tt = Math.max(8, Math.min(10.5, cw / 14));
   let cs = Math.max(MIN_TXT, Math.min(8, 6 + cw / 70)), ks = Math.max(6.5, cs - 0.6);
   const inner = cw - 14, rotK = "Ponto-chave:";
@@ -1214,7 +1214,7 @@ const TELAS = [
   () => '<h2>3. Antes de começar</h2>' +
     '<div class="cartao seg"><h3>Segurança</h3><div class="cond">' +
     [["parado", "Parado, com bloqueio"], ["operacao", "Em operação"]].map(c => '<button type="button" class="tipo" data-ac="cond" data-v="' + c[0] + '" aria-pressed="' + (E.condicao === c[0]) + '"><span>' + c[1] + "</span></button>").join("") +
-    '</div><p class="dica">Obrigatório: sem a condição o mini file não é gerado.</p>' +
+    '</div><p class="dica">Obrigatório: sem a condição a instrução de trabalho não é gerada.</p>' +
     '<label class="campo"><span class="r"><span>Riscos (conferir na APR da área)</span></span></label>' + listaTexto("riscos", "Ex.: Partes rotativas") +
     '<button type="button" class="btn leve" data-ac="mais" data-p="riscos">+ Risco</button></div>' +
     '<div class="cartao epi"><h3>EPIs obrigatórios</h3><p class="dica">Sempre usar (EPIs da área): ' + EPIS_AREA.join(" · ") + ". Marque abaixo só os específicos desta atividade.</p>" +
@@ -1237,9 +1237,9 @@ const TELAS = [
       campo("Título (um verbo)", "etapas." + i + ".titulo", {ph: "Ex.: Bloquear", max: 22}) + campo("Como fazer", "etapas." + i + ".como", {area: true, max: 110}) +
       campo("Ponto-chave", "etapas." + i + ".chave", {max: 60, opc: false}) + blocoFoto("etapas." + i + ".foto", "Foto da etapa") + "</div>").join("") +
     '<button type="button" class="btn leve" data-ac="maisetapa">+ Etapa</button>' +
-    (E.etapas.length > 7 ? '<div class="aviso info">Com ' + E.etapas.length + " etapas os cartões ficam estreitos. Considere juntar etapas ou dividir em dois mini files.</div>" : ""),
+    (E.etapas.length > 7 ? '<div class="aviso info">Com ' + E.etapas.length + " etapas os cartões ficam estreitos. Considere juntar etapas ou dividir em duas instruções de trabalho.</div>" : ""),
   // 6 Observar
-  () => '<h2>6. O que observar</h2><p class="dica">Até 4 sinais de anomalia que o técnico deve verificar. O mini file já traz o aviso “Encontrou anomalia? Pare a atividade e abra uma nota no SAP.”</p>' +
+  () => '<h2>6. O que observar</h2><p class="dica">Até 4 sinais de anomalia que o técnico deve verificar. A instrução de trabalho já traz o aviso “Encontrou anomalia? Pare a atividade e abra uma nota no SAP.”</p>' +
     '<div class="cartao">' + listaTexto("observar", "Ex.: Ruído anormal no mancal", 60) +
     (E.observar.length < 4 ? '<button type="button" class="btn leve" data-ac="mais" data-p="observar">+ Sinal de anomalia</button>' : "") + "</div>",
   // 7 Gerar
@@ -1252,11 +1252,11 @@ const TELAS = [
       (erro ? '<div class="aviso erro"><strong>Não consegui montar a prévia</strong><span>' + h(erro) + "</span></div>" :
         '<div class="previa" id="previa">' + pg.svg() + '</div><button type="button" class="btn leve" data-ac="zoom">Ampliar / reduzir a prévia</button>') +
       (avisos.length ? '<div class="aviso info"><strong>Avisos do layout</strong><ul class="lista">' + avisos.map(t => "<li>" + h(t) + "</li>").join("") + "</ul></div>" : "") +
-      (pend.length ? '<div class="aviso info"><strong>Em branco (' + pend.length + ")</strong><span>O mini file é gerado mesmo assim: o que não foi informado fica em branco.</span><ul class=\"lista\">" + pend.map(t => "<li>" + h(t) + "</li>").join("") + "</ul></div>"
+      (pend.length ? '<div class="aviso info"><strong>Em branco (' + pend.length + ")</strong><span>A instrução de trabalho é gerada mesmo assim: o que não foi informado fica em branco.</span><ul class=\"lista\">" + pend.map(t => "<li>" + h(t) + "</li>").join("") + "</ul></div>"
         : '<div class="aviso ok"><strong>Tudo preenchido.</strong></div>') +
       '<div class="cartao"><h3>Arquivo</h3><div class="doc">' + h(doc) + ".pptx</div>" +
       '<p class="dica">PowerPoint editável, A4 paisagem, fonte Arial. Salve em: pasta Mini File / ' + (h(d.pasta) || "nº do equipamento") + " / " + h(doc) + ".pptx</p>" +
-      '<div class="acoes"><button type="button" class="btn" data-ac="gerar"' + (falta.length || erro ? " disabled" : "") + ">Gerar mini file (.pptx)</button>" +
+      '<div class="acoes"><button type="button" class="btn" data-ac="gerar"' + (falta.length || erro ? " disabled" : "") + ">Gerar instrução de trabalho (.pptx)</button>" +
       '<button type="button" class="btn sec" data-ac="compartilhar" id="btComp" hidden>Compartilhar</button></div><div id="resultado"></div></div>';
   }
 ];
@@ -1349,7 +1349,7 @@ async function gerar(bt) {
   try {
     ultimoArquivo = await gerarBlob();
     await entregar(ultimoArquivo.blob, ultimoArquivo.nome);
-    res.innerHTML = '<div class="aviso ok"><strong>Mini file gerado</strong><span>' + h(ultimoArquivo.nome) + " (" + Math.round(ultimoArquivo.blob.size / 1024) + " KB). Veja na pasta Downloads do aparelho.</span></div>";
+    res.innerHTML = '<div class="aviso ok"><strong>Instrução de trabalho gerada</strong><span>' + h(ultimoArquivo.nome) + " (" + Math.round(ultimoArquivo.blob.size / 1024) + " KB). Veja na pasta Downloads do aparelho.</span></div>";
     const arq = new File([ultimoArquivo.blob], ultimoArquivo.nome, {type: ultimoArquivo.blob.type});
     if (navigator.canShare && navigator.canShare({files: [arq]})) $("#btComp").hidden = false;
   } catch (e) {

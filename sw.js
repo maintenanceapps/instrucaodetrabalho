@@ -1,5 +1,5 @@
-// Mini File Belgo - funciona sem internet depois da primeira abertura
-const CACHE = "minifile-v2";
+// Instrucao de Trabalho - funciona sem internet depois da primeira abertura
+const CACHE = "instrucao-trabalho-v1";
 const ARQUIVOS = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARQUIVOS)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
