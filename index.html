@@ -282,10 +282,10 @@ class Pagina {
     if (marcado) this.polilinha([[x + 1.3, y + 3.4], [x + 2.8, y + 1.6], [x + 5.4, y + 5.2]], AZUL, 1.3);
   }
   foto(fonte, x, y, w, h, modo, r, corVazio) {
-    if (fonte) {
-      if (modo === "conter") this.caixa(x, y, w, h, r, "white", LINHA, 0.6);
-      else this.caixa(x, y, w, h, r, FOTO_BG);          // a foto entra inteira, sem corte
-      this.imagem(fonte, x, y, w, h, modo, r);
+    if (fonte) {                                        // moldura do tamanho da foto: borda fina e cantos arredondados, sem corte
+      const rr = Math.max(r || 0, 3), m = this._medidaImagem(fonte, x, y, w, h, "ajustar", rr);
+      this.imagem(fonte, x, y, w, h, "ajustar", rr);
+      this.caixa(m.x0, m.y0, m.dw, m.dh, m.rr, null, LINHA, 0.75);
     } else this.caixa(x, y, w, h, r, corVazio || FUNDO);  // foto não enviada: espaço vazio
   }
   _medidaImagem(img, x, y, w, h, modo, r) {
@@ -957,7 +957,7 @@ function montar(pg, d) {
     const c_ = Math.floor(i / linE), r_ = i % linE;
     const ex = x + 10 + c_ * (ecw + 6), ey = y - 19 - (r_ + 1) * erh;
     const th = Math.min(erh - 3, 20), tw_ = Math.min(th * 1.55, ecw * 0.34), ty = ey + (erh - th) / 2;
-    if (e.foto) { pg.caixa(ex, ty, tw_, th, 3, "white", LINHA, 0.6); pg.imagem(e.foto, ex, ty, tw_, th, "conter", 3); }
+    if (e.foto) pg.foto(e.foto, ex, ty, tw_, th, "ajustar", 3);
     else pg.foto(null, ex, ty, tw_, th, null, 3, "white");
     const nx = ex + tw_ + 6, nw = ecw - tw_ - 6, temCod = !vazio(e.codigo), cy = ty + th / 2;
     let sub = temCod ? "Cód. SAP " + e.codigo : "", linhasN = [], ntam = 7.1;
@@ -1000,7 +1000,7 @@ function montar(pg, d) {
     const r_ = Math.floor(i / colsI), c_ = i % colsI, cx_ = gx0 + c_ * icw, cy_ = gy0 - r_ * ich;
     pg.caixa(cx_ + 2, cy_ - ich + 2, icw - 4, ich - 4, 4.5, "white");
     const th = ich - 10, tw_ = Math.min(th * 1.35, icw * 0.32);
-    if (it.foto) { pg.caixa(cx_ + 6, cy_ - ich + 5, tw_, th, 3, "white", LINHA, 0.6); pg.imagem(it.foto, cx_ + 6, cy_ - ich + 5, tw_, th, "conter", 3); }
+    if (it.foto) pg.foto(it.foto, cx_ + 6, cy_ - ich + 5, tw_, th, "ajustar", 3);
     else pg.foto(null, cx_ + 6, cy_ - ich + 5, tw_, th, null, 3);
     const nx = cx_ + 6 + tw_ + 6, nw = icw - tw_ - 16, nome = it.nome, temCod = !vazio(it.codigo), linhaCod = ich >= 22 && temCod;
     let ntam = 6.75;
