@@ -1650,8 +1650,8 @@ const TELAS = [
       '<button type="button" class="mini" data-ac="sobe" data-i="' + i + '" aria-label="Mover para cima"' + (i === 0 ? " disabled" : "") + ">↑</button>" +
       '<button type="button" class="mini" data-ac="desce" data-i="' + i + '" aria-label="Mover para baixo"' + (i === E.etapas.length - 1 ? " disabled" : "") + ">↓</button>" +
       '<button type="button" class="x" data-ac="tira" data-p="etapas" data-i="' + i + '" aria-label="Remover etapa">×</button></div>' +
-      campo("Título (um verbo)", "etapas." + i + ".titulo", {ph: "Ex.: Bloquear", max: 22}) + campo("Como fazer", "etapas." + i + ".como", {area: true, max: 110}) +
-      campo("Ponto-chave", "etapas." + i + ".chave", {max: 60, opc: false}) + blocoFoto("etapas." + i + ".foto", "Foto da etapa") + "</div>").join("") +
+      campo("Título (um verbo)", "etapas." + i + ".titulo", {ph: "Ex.: Bloquear", max: 22}) + campo("Como fazer", "etapas." + i + ".como", {area: true, max: 110, ph: "O que fazer e como. Ex.: Aplicar 10 g de graxa em cada mancal com a pistola."}) +
+      campo("Ponto-chave", "etapas." + i + ".chave", {max: 60, ph: "O que não pode dar errado. Ex.: Não exceder a quantidade."}) + blocoFoto("etapas." + i + ".foto", "Foto da etapa") + "</div>").join("") +
     '<button type="button" class="btn leve" data-ac="maisetapa">+ Etapa</button>' +
     (E.etapas.length > 7 ? '<div class="aviso info">Com ' + E.etapas.length + " etapas os cartões ficam estreitos. Considere juntar etapas ou dividir em duas instruções de trabalho.</div>" : ""),
   // 6 Observar
