@@ -1523,6 +1523,8 @@ function sugerirTitulo() {
   if (!vazio(E.subequipamento)) s += " " + artigo(E.subequipamento) + " " + minuscInicial(E.subequipamento);
   return s;
 }
+const SAP_VAZIO = "__________";   // sem código: deixa o espaço para preencher à mão
+const comSap = o => Object.assign({}, o, {codigo: vazio(o.codigo) ? SAP_VAZIO : String(o.codigo).trim()});
 function fabricarDados() {
   const t = tipoAtual();
   const fixos1 = [["MÁQUINA", E.equipamento], ["FÁBRICA", (E.fabrica || "").toUpperCase()], ["SUBEQUIPAMENTO", E.subequipamento], ["COMPONENTE", E.componente],
@@ -1542,11 +1544,11 @@ function fabricarDados() {
   while (extra.length > 8) { let i = -1; extra.forEach((c, k) => { if (vazio(c[1])) i = k; }); if (i < 0) break; extra.splice(i, 1); }
   const doc = documento();
   return {modelo: completo() ? "completo" : "1p", local: E.local, tag: E.tag, duracao: E.tempo, preparacao: E.preparacao, camposExtra: extra,
-    materiais: E.materiais, refs: E.refs, refsObs: E.refsObs, tipo: tipoExtenso(), titulo: E.titulo, maquina: E.equipamento, fabrica: (E.fabrica || "").toUpperCase(), documento: doc,
+    materiais: E.materiais.map(comSap), refs: E.refs, refsObs: E.refsObs, tipo: tipoExtenso(), titulo: E.titulo, maquina: E.equipamento, fabrica: (E.fabrica || "").toUpperCase(), documento: doc,
     revisao: E.revisao, data: dataBR(E.data), qr_base: E.qrBase, pasta: (E.equipamento || "").trim(), foto_equipamento: E.fotoEquip,
     campos: fixos1.concat(esp, fixos2), condicao: E.condicao, riscos: E.riscos,
-    temEpi: epis.length > 0 || E.somenteArea, epis: epis.filter(e => vazio(e.nome) || !ehEpiDaArea(e.nome)),
-    itens: completo() ? E.itens : E.itens.concat(E.materiais.filter(m => !vazio(m.nome) || m.foto)), etapas: E.etapas.filter(e => !vazio(e.titulo) || !vazio(e.como) || !vazio(e.chave) || e.foto), observar: E.observar};
+    temEpi: epis.length > 0 || E.somenteArea, epis: epis.filter(e => vazio(e.nome) || !ehEpiDaArea(e.nome)).map(comSap),
+    itens: (completo() ? E.itens : E.itens.concat(E.materiais.filter(m => !vazio(m.nome) || m.foto))).map(comSap), etapas: E.etapas.filter(e => !vazio(e.titulo) || !vazio(e.como) || !vazio(e.chave) || e.foto), observar: E.observar};
 }
 function obrigatorios(d) {
   const f = [];
@@ -1656,11 +1658,10 @@ const TELAS = [
     '<label class="campo"><span class="r"><span>Riscos (conferir na APR da área)</span></span></label>' + listaTexto("riscos", "Ex.: Partes rotativas") +
     '<button type="button" class="btn leve" data-ac="mais" data-p="riscos">+ Risco</button></div>' +
     (completo() ? '<div class="cartao"><h3>Preparação da área</h3>' + campo("Preparação, documentos e pré-requisitos", "preparacao", {area: true, ph: "Ex.: Isolar a área, separar o kit e conferir a APR."}) + "</div>" : "") +
-    '<div class="cartao epi"><h3>EPIs obrigatórios</h3><p class="dica">Sempre usar (EPIs da área): ' + EPIS_AREA.join(" · ") + ". Marque abaixo só os específicos desta atividade.</p>" +
-    '<div class="epis">' + EPI_BIB.filter(b => !ehEpiDaArea(b.nome)).map(b => '<button type="button" class="epi-op" data-ac="epi" data-v="' + b.cod + '" aria-pressed="' + E.episBib.includes(b.cod) + '"><img src="' + b.src + '" alt=""><span>' + h(b.nome) + "</span><small>" + (b.sap ? "Cód. SAP " + h(b.sap) : "&nbsp;") + "</small></button>").join("") + "</div>" +
-    E.episOutros.map((o, i) => '<div class="bloco"><div class="bloco-cab"><strong>Outro EPI</strong><button type="button" class="x" data-ac="tira" data-p="episOutros" data-i="' + i + '" aria-label="Remover EPI">×</button></div>' +
+    '<div class="cartao epi"><h3>EPIs obrigatórios</h3><p class="dica">Sempre usar (EPIs da área): ' + EPIS_AREA.join(" · ") + ". Adicione só os específicos desta atividade: da biblioteca (já com código SAP quando houver) ou com foto própria.</p>" +
+    E.episOutros.map((o, i) => '<div class="bloco"><div class="bloco-cab"><span class="num">' + (i + 1) + '</span><strong>EPI</strong><button type="button" class="x" data-ac="tira" data-p="episOutros" data-i="' + i + '" aria-label="Remover EPI">×</button></div>' +
       campo("Nome do EPI", "episOutros." + i + ".nome") + campo("Código SAP", "episOutros." + i + ".codigo", {opc: true}) + blocoFoto("episOutros." + i + ".foto", "Foto do EPI") + "</div>").join("") +
-    '<div class="par"><button type="button" class="btn leve" data-ac="bib" data-v="episOutros">+ Da biblioteca</button><button type="button" class="btn leve" data-ac="maisepi">+ Outro EPI (foto própria)</button></div>' +
+    '<div class="par"><button type="button" class="btn leve" data-ac="bib" data-v="episOutros">+ Da biblioteca</button><button type="button" class="btn leve" data-ac="maisepi">+ EPI com foto própria</button></div>' +
     '<label class="check"><input type="checkbox" data-chk="somenteArea"' + (E.somenteArea ? " checked" : "") + (E.episBib.length || E.episOutros.some(o => !vazio(o.nome)) ? " disabled" : "") + "> Somente os EPIs da área (sem EPI específico)</label></div>",
   // 4 Ferramentas
   () => completo() ? telaItensCompleto() : '<h2>4. Ferramentas e materiais</h2><p class="dica">Ferramentas primeiro, depois os materiais. Até 6 itens ficam bem legíveis; agrupe os consumíveis (ex.: kit de limpeza).</p>' +
@@ -1718,7 +1719,13 @@ function listaTexto(p, ph, max) {
   return getP(p).map((v, i) => '<div class="linha-item"><input type="text" data-p="' + p + "." + i + '" value="' + h(v) + '" placeholder="' + h(ph) + '"' + (max ? ' maxlength="' + max + '"' : "") +
     ' aria-label="' + h(ph) + '" id="l_' + p + "_" + i + '" autocomplete="off"><button type="button" class="x" data-ac="tira" data-p="' + p + '" data-i="' + i + '" aria-label="Remover">×</button></div>').join("");
 }
+function migraEpisBib() {   // rascunhos antigos: EPIs marcados na grade fixa viram itens da lista
+  if (!E.episBib || !E.episBib.length) return;
+  for (const cod of E.episBib) { const b = EPI_BIB.find(x => x.cod === cod); if (b && !E.episOutros.some(o => o.nome === b.nome)) E.episOutros.push({nome: b.nome, codigo: b.sap || "", foto: {src: b.src, w: b.w, h: b.h}}); }
+  E.episBib = [];
+}
 function desenha(rolar) {
+  migraEpisBib();
   $("#passos").innerHTML = PASSOS.map((n, i) => '<button type="button" class="passo" data-passo="' + i + '"' + (i === passo ? ' aria-current="step"' : "") + "><b>" + (i + 1) + "</b>" + n + "</button>").join("");
   $("#tela").innerHTML = TELAS[passo]();
   $("#btVoltar").disabled = passo === 0;
@@ -1833,7 +1840,7 @@ function galJaTem() { return new Set((getP(GAL.destino) || []).map(x => _semAcen
 function galCartao(x, ja) {
   const marcado = GAL.sel.includes(x.a), tem = ja.has(_semAcento(x.n));
   return '<button type="button" class="gal-it" data-g="item" data-a="' + h(x.a) + '" aria-pressed="' + marcado + '"' + (tem ? " disabled" : "") + '>' +
-    '<img src="' + BIB_DIR + h(x.a) + '" alt="" loading="lazy" decoding="async" width="180" height="180"><span>' + h(x.n) + "</span>" + (tem ? "<small>já adicionado</small>" : "") + "</button>";
+    '<img src="' + BIB_DIR + h(x.a) + '" alt="" loading="lazy" decoding="async" width="180" height="180"><span>' + h(x.n) + "</span>" + (tem ? "<small>já adicionado</small>" : x.s ? "<small>SAP " + h(x.s) + "</small>" : "") + "</button>";
 }
 function galDesenha(soCorpo) {
   if (!GAL) return;
@@ -1847,7 +1854,7 @@ function galDesenha(soCorpo) {
   let html = "";
   if (GAL.busca.trim()) {
     const termos = _semAcento(GAL.busca).split(/\s+/).filter(Boolean);
-    const l = GAL.lista.filter(x => { const t = _semAcento(x.n + " " + x.c); return termos.every(k => t.includes(k)); });
+    const l = GAL.lista.filter(x => { const t = _semAcento(x.n + " " + x.c); return termos.every(k => t.includes(k) || (x.s || "").includes(k)); });
     html = l.length ? grade(l) : '<p class="gal-vazio">Nada encontrado. Use "+ … com foto própria" para cadastrar um item que não está na biblioteca.</p>';
   } else if (GAL.aba === "*rec") html = grade(rec);
   else if (GAL.aba) html = grade(GAL.lista.filter(x => x.c === GAL.aba));
@@ -1886,7 +1893,7 @@ async function galClique(bt) {
     try {
       for (const x of escolhidos) {
         const r = await fetch(BIB_DIR + x.a); if (!r.ok) throw new Error(x.n);
-        novos.push({nome: x.n, codigo: "", foto: await fotoDaBib(await r.blob())});
+        novos.push({nome: x.n, codigo: x.s || "", foto: await fotoDaBib(await r.blob())});
       }
     } catch (e) { bt.disabled = false; galRodape(); msg("Não consegui baixar a foto de " + (e.message || "um item") + ". Confira a internet."); return; }
     const lista = getP(destino);
@@ -1895,7 +1902,8 @@ async function galClique(bt) {
     if (destino === "episOutros" && novos.length) E.somenteArea = false;
     bibGuardaRecentes(escolhidos.map(x => x.a));
     fecharGaleria(false); desenha(false);
-    msg(novos.length === 1 ? "1 item adicionado. Preencha o código SAP." : novos.length + " itens adicionados. Preencha os códigos SAP.");
+    const semSap = novos.filter(n => vazio(n.codigo)).length;
+    msg((novos.length === 1 ? "1 item adicionado." : novos.length + " itens adicionados.") + (semSap ? " Preencha o código SAP." : ""));
   }
 }
 
